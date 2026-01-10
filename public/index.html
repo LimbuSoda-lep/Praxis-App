@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Praxis: A minimal habit tracker with Pomodoro timer and AI coach">
+    <meta name="theme-color" content="#F9F9F7">
+    <title>Praxis | Daily Practice. Real Progress.</title>
+
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/components.css">
+
+    <style>
+        .hero {
+            text-align: center;
+            padding: 6rem 0;
+            min-height: 70vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .hero-headline {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            margin-bottom: 1.5rem;
+        }
+
+        .hero-subtext {
+            max-width: 500px;
+            margin: 0 auto 2.5rem;
+            font-size: 1.2rem;
+        }
+
+        .cta-group {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-card {
+            background: var(--bg-secondary);
+            padding: 2.5rem;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-default);
+            box-shadow: var(--shadow-subtle);
+            transition: transform 0.2s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .feature-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .ai-section {
+            background-color: var(--bg-tertiary);
+            border-radius: var(--radius-lg);
+            padding: 4rem 2rem;
+            margin: 4rem 0;
+            text-align: center;
+        }
+
+        .mika-badge {
+            display: inline-block;
+            background-color: var(--text-primary);
+            color: var(--text-inverse);
+            padding: 0.25rem 0.75rem;
+            border-radius: var(--radius-full);
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            margin-bottom: 1.5rem;
+        }
+
+        .mika-quote {
+            font-size: 1.5rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            max-width: 600px;
+            margin: 0 auto 1.5rem;
+            font-style: italic;
+        }
+
+        footer {
+            padding: 3rem 0;
+            border-top: 1px solid var(--border-default);
+            margin-top: 2rem;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+
+        @media (max-width: 768px) {
+            .cta-group {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .cta-group .btn {
+                width: 100%;
+            }
+
+            .footer-content {
+                flex-direction: column;
+                gap: 1.5rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header">
+        <div class="container nav-wrapper">
+            <div class="brand">
+                <a href="/" class="logo">Praxis</a>
+                <span class="tagline">Daily practice. Real progress.</span>
+            </div>
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="#features">Features</a></li>
+                    <li><a href="#ai">AI Coach</a></li>
+                    <li>
+                        <div class="theme-toggle" title="Toggle theme">
+                            <div class="theme-toggle-thumb"></div>
+                        </div>
+                    </li>
+                    <li><a href="/login.html" class="btn btn-primary btn-sm">Get Started</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="container">
+                <h1 class="hero-headline">Consistency beats<br>motivation.</h1>
+                <p class="hero-subtext">
+                    Motivation is fleeting. Habits are permanent.<br>
+                    Track your daily execution with clinical precision.
+                </p>
+                <div class="cta-group">
+                    <a href="/signup.html" class="btn btn-primary btn-lg">Get Started Free</a>
+                    <a href="#features" class="btn btn-ghost">Learn more</a>
+                </div>
+            </div>
+        </section>
+
+        <section id="features" class="section">
+            <div class="container">
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <span class="feature-icon">✓</span>
+                        <h3>Habit Tracking</h3>
+                        <p>Build consistent daily habits across study, health, and work. Track streaks and see real
+                            progress over time.</p>
+                    </div>
+
+                    <div class="feature-card">
+                        <span class="feature-icon">⏱</span>
+                        <h3>Pomodoro Timer</h3>
+                        <p>25-minute focused sessions with smart breaks. Link sessions to habits and visualize your
+                            productive time.</p>
+                    </div>
+
+                    <div class="feature-card">
+                        <span class="feature-icon">📊</span>
+                        <h3>Progress Analytics</h3>
+                        <p>View completion rates, maintain streaks, and understand your patterns with data-driven
+                            insights.</p>
+                    </div>
+
+                    <div class="feature-card">
+                        <span class="feature-icon">🤖</span>
+                        <h3>AI Coach</h3>
+                        <p>Get personalized daily plans based on your goals, habits, and available time. Powered by AI.
+                        </p>
+                    </div>
+
+                    <div class="feature-card">
+                        <span class="feature-icon">🌙</span>
+                        <h3>Dark Mode</h3>
+                        <p>Easy on the eyes. Work day or night with our beautiful dark theme designed for focus.</p>
+                    </div>
+
+                    <div class="feature-card">
+                        <span class="feature-icon">📱</span>
+                        <h3>Mobile Friendly</h3>
+                        <p>Fully responsive design. Track your habits and run Pomodoro sessions from any device.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="ai">
+            <div class="container">
+                <div class="ai-section">
+                    <span class="mika-badge">MEET YOUR AI COACH</span>
+                    <blockquote class="mika-quote">
+                        "I do not rely on how you feel today. I rely on what you planned to do. Let us execute."
+                    </blockquote>
+                    <p class="card-description" style="max-width: 450px; margin: 0 auto;">
+                        Your AI coach analyzes your habits, streaks, and Pomodoro history to create a personalized daily
+                        plan that actually works.
+                    </p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container footer-content">
+            <div>&copy; 2026 Praxis. Built for consistency.</div>
+            <div style="display: flex; gap: 1.5rem;">
+                <a href="/signup.html">Create Account</a>
+                <a href="/login.html">Sign In</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/js/theme.js"></script>
+</body>
+
+</html>

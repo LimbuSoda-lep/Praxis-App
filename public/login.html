@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | Praxis</title>
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/components.css">
+
+    <style>
+        .auth-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: var(--space-lg);
+        }
+
+        .auth-card {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-default);
+            border-radius: var(--radius-lg);
+            padding: var(--space-3xl) var(--space-2xl);
+            max-width: 450px;
+            width: 100%;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: var(--space-2xl);
+        }
+
+        .auth-logo {
+            font-size: var(--text-2xl);
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: var(--space-sm);
+        }
+
+        .auth-subtitle {
+            color: var(--text-secondary);
+        }
+
+        .auth-footer {
+            text-align: center;
+            margin-top: var(--space-xl);
+            color: var(--text-secondary);
+        }
+
+        .auth-footer a {
+            color: var(--accent-primary);
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <div class="auth-logo">Praxis</div>
+                <p class="auth-subtitle">Welcome back</p>
+            </div>
+
+            <div id="error-message" class="alert alert-error hidden"></div>
+
+            <form id="loginForm">
+                <div class="form-group">
+                    <label class="form-label" for="email">Email</label>
+                    <input type="email" id="email" name="email" class="form-input" required autocomplete="email"
+                        placeholder="you@example.com">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="password">Password</label>
+                    <input type="password" id="password" name="password" class="form-input" required
+                        autocomplete="current-password" placeholder="Your password">
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%;">
+                    Sign In
+                </button>
+            </form>
+
+            <div class="auth-footer">
+                Don't have an account? <a href="/signup.html">Sign up</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/auth.js"></script>
+    <script src="/js/utils.js"></script>
+    <script src="/js/theme.js"></script>
+    <script>
+        // Redirect if already logged in
+        auth.redirectIfAuthenticated();
+
+        const form = document.getElementById('loginForm');
+        const errorDiv = document.getElementById('error-message');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            // Hide previous errors
+            errorDiv.classList.add('hidden');
+
+            try {
+                utils.setLoading(submitBtn, true);
+
+                const data = await api.apiCall('/auth/login', {
+                    method: 'POST',
+                    body: JSON.stringify({ email, password }),
+                });
+
+                // Save token and user data
+                auth.setToken(data.token);
+                auth.setUser(data.user);
+
+                // Show success and redirect
+                utils.showToast('Welcome back!', 'success');
+
+                setTimeout(() => {
+                    window.location.href = '/dashboard.html';
+                }, 800);
+            } catch (error) {
+                errorDiv.textContent = error.message || 'Login failed';
+                errorDiv.classList.remove('hidden');
+                utils.setLoading(submitBtn, false);
+            }
+        });
+    </script>
+</body>
+
+</html>

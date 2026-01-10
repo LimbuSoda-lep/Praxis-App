@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Coach | Praxis</title>
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/components.css">
+</head>
+
+<body>
+    <header class="header">
+        <div class="container nav-wrapper">
+            <div class="brand">
+                <a href="/dashboard.html" class="logo">Praxis</a>
+                <span class="tagline">Daily practice. Real progress.</span>
+            </div>
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="/dashboard.html">Dashboard</a></li>
+                    <li><a href="/habits.html">Habits</a></li>
+                    <li><a href="/ai-coach.html" style="color: var(--accent-primary);">AI Coach</a></li>
+                    <li>
+                        <div class="theme-toggle" title="Toggle theme">
+                            <div class="theme-toggle-thumb"></div>
+                        </div>
+                    </li>
+                    <li><a href="#" id="logoutBtn" class="btn btn-ghost btn-sm">Logout</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="section">
+        <div class="container" style="max-width: 900px;">
+            <!-- Header -->
+            <div style="text-align: center; margin-bottom: var(--space-3xl);">
+                <div class="mika-badge" style="background: var(--accent-primary);">AI COACH</div>
+                <h1 style="margin: var(--space-lg) 0 var(--space-md);">Your AI Productivity Coach</h1>
+                <p style="color: var(--text-secondary); max-width: 600px; margin: 0 auto;">
+                    Share your goals and available time. I'll analyze your habits, streaks, and Pomodoro history to
+                    create a personalized plan for today.
+                </p>
+            </div>
+
+            <!-- Input Form -->
+            <div class="card" style="margin-bottom: var(--space-2xl);">
+                <h3 style="margin-bottom: var(--space-lg);">What's your plan for today?</h3>
+
+                <form id="coachForm">
+                    <div class="form-group">
+                        <label class="form-label" for="goals">Your Goals & Priorities</label>
+                        <textarea id="goals" class="form-textarea" required
+                            placeholder="Example: I want to focus on my studies today, specifically preparing for my math exam. I also want to maintain my exercise streak and do some reading."
+                            style="min-height: 120px;"></textarea>
+                        <div class="form-hint">Be specific about what you want to accomplish today</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="availableTime">Available Time Today</label>
+                        <input type="text" id="availableTime" class="form-input" required
+                            placeholder="Example: 4 hours in the afternoon, 1 hour in the evening">
+                        <div class="form-hint">When and how much time do you have available?</div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-lg" style="width: 100%;">
+                        🤖 Get AI Recommendations
+                    </button>
+                </form>
+            </div>
+
+            <!-- AI Suggestions (hidden by default) -->
+            <div id="suggestionsContainer" class="hidden">
+                <div class="ai-suggestion-card">
+                    <div class="ai-section-title">
+                        <span>📋</span> Recommended Habits for Today
+                    </div>
+                    <div id="recommendedHabits"></div>
+                </div>
+
+                <div class="ai-suggestion-card">
+                    <div class="ai-section-title">
+                        <span>⏱</span> Pomodoro Schedule
+                    </div>
+                    <div id="pomodoroSchedule"></div>
+                    <div
+                        style="margin-top: var(--space-md); padding: var(--space-md); background-color: var(--bg-secondary); border-radius: var(--radius-md); font-size: var(--text-sm); color: var(--text-secondary);">
+                        💡 Remember: 25-minute work sessions with 5-minute breaks. Long 15-minute break after every 4
+                        sessions.
+                    </div>
+                </div>
+
+                <div class="motivation-message" id="motivationMessage"></div>
+
+                <div style="text-align: center; margin-top: var(--space-xl);">
+                    <button class="btn btn-secondary" id="getNewPlanBtn">
+                        Get Another Plan
+                    </button>
+                </div>
+            </div>
+
+            <!-- Loading State -->
+            <div id="loadingState" class="hidden" style="text-align: center; padding: var(--space-3xl);">
+                <div class="spinner" style="margin: 0 auto var(--space-lg);"></div>
+                <p style="color: var(--text-secondary);">Analyzing your data and generating personalized
+                    recommendations...</p>
+            </div>
+        </div>
+    </main>
+
+    <script src="/js/auth.js"></script>
+    <script src="/js/utils.js"></script>
+    <script src="/js/theme.js"></script>
+    <script>
+        auth.requireAuth();
+
+        document.getElementById('logoutBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            auth.logout();
+        });
+
+        const coachForm = document.getElementById('coachForm');
+        const suggestionsContainer = document.getElementById('suggestionsContainer');
+        const loadingState = document.getElementById('loadingState');
+
+        coachForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const goals = document.getElementById('goals').value;
+            const availableTime = document.getElementById('availableTime').value;
+
+            if (!goals || !availableTime) {
+                utils.showToast('Please fill in all fields', 'error');
+                return;
+            }
+
+            const submitBtn = coachForm.querySelector('button[type="submit"]');
+
+            try {
+                // Show loading
+                suggestionsContainer.classList.add('hidden');
+                loadingState.classList.remove('hidden');
+                utils.setLoading(submitBtn, true);
+
+                const data = await api.apiCall('/ai/coach', {
+                    method: 'POST',
+                    body: JSON.stringify({ goals, availableTime })
+                });
+
+                // Display suggestions
+                displaySuggestions(data.suggestions);
+
+                // Hide loading, show suggestions
+                loadingState.classList.add('hidden');
+                suggestionsContainer.classList.remove('hidden');
+
+                // Scroll to suggestions
+                suggestionsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+                utils.showToast('AI recommendations generated!', 'success');
+            } catch (error) {
+                console.error('Failed to get AI suggestions:', error);
+                utils.showToast(error.message || 'Failed to generate recommendations', 'error');
+                loadingState.classList.add('hidden');
+            } finally {
+                utils.setLoading(submitBtn, false);
+            }
+        });
+
+        function displaySuggestions(suggestions) {
+            // Recommended Habits
+            const habitsHtml = suggestions.recommendedHabits.map(habit => `
+                <div class="habit-suggestion">
+                    <div class="habit-suggestion-name">
+                        ${habit.isNew ? '✨ ' : ''}${habit.habit}
+                        ${habit.isNew ? '<span class="badge badge-success" style="margin-left: 0.5rem;">New Suggestion</span>' : ''}
+                    </div>
+                    <div class="habit-suggestion-reason">${habit.why}</div>
+                </div>
+            `).join('');
+            document.getElementById('recommendedHabits').innerHTML = habitsHtml;
+
+            // Pomodoro Schedule
+            const scheduleHtml = suggestions.pomodoroSchedule.map((item, index) => `
+                <div class="habit-suggestion">
+                    <div class="habit-suggestion-name">
+                        ${item.habit}
+                        <span class="badge badge-primary" style="margin-left: 0.5rem;">
+                            ${item.sessions} session${item.sessions > 1 ? 's' : ''}
+                        </span>
+                    </div>
+                    <div class="habit-suggestion-reason">
+                        ${item.estimatedMinutes} minutes total (${item.sessions} × 25min + breaks)
+                    </div>
+                </div>
+            `).join('');
+            document.getElementById('pomodoroSchedule').innerHTML = scheduleHtml;
+
+            // Motivation Message
+            document.getElementById('motivationMessage').textContent = `"${suggestions.motivation}"`;
+        }
+
+        // Get new plan button
+        document.getElementById('getNewPlanBtn').addEventListener('click', () => {
+            suggestionsContainer.classList.add('hidden');
+            document.getElementById('goals').focus();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    </script>
+</body>
+
+</html>

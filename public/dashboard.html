@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | Praxis</title>
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/components.css">
+</head>
+
+<body>
+    <header class="header">
+        <div class="container nav-wrapper">
+            <div class="brand">
+                <a href="/dashboard.html" class="logo">Praxis</a>
+                <span class="tagline">Daily practice. Real progress.</span>
+            </div>
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="/dashboard.html" style="color: var(--accent-primary);">Dashboard</a></li>
+                    <li><a href="/habits.html">Habits</a></li>
+                    <li><a href="/ai-coach.html">AI Coach</a></li>
+                    <li>
+                        <div class="theme-toggle" title="Toggle theme">
+                            <div class="theme-toggle-thumb"></div>
+                        </div>
+                    </li>
+                    <li><a href="#" id="logoutBtn" class="btn btn-ghost btn-sm">Logout</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="section">
+        <div class="container">
+            <!-- Welcome Section -->
+            <div style="margin-bottom: var(--space-2xl);">
+                <h1 style="margin-bottom: var(--space-sm);">Welcome back, <span id="userName">there</span></h1>
+                <p style="color: var(--text-secondary);" id="currentDate"></p>
+            </div>
+
+            <!-- Dashboard Grid -->
+            <div class="dashboard-grid">
+                <!-- Today's Habits Widget -->
+                <div class="dashboard-widget" style="grid-column: span 2;">
+                    <div class="widget-header">
+                        <h3 class="widget-title">Today's Habits</h3>
+                        <a href="/habits.html" class="widget-action">Manage →</a>
+                    </div>
+                    <div id="todayHabits">
+                        <div style="text-align: center; padding: var(--space-2xl);">
+                            <div class="spinner"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Progress Widget -->
+                <div class="dashboard-widget">
+                    <div class="widget-header">
+                        <h3 class="widget-title">Today's Progress</h3>
+                    </div>
+                    <div class="stat-item" style="margin-top: var(--space-md);">
+                        <div class="stat-value" id="completionPercentage">0%</div>
+                        <div class="stat-label">Completed</div>
+                    </div>
+                    <div class="progress-container" style="margin-top: var(--space-lg);">
+                        <div class="progress-bar" id="progressBar" style="width: 0%"></div>
+                    </div>
+                    <div
+                        style="margin-top: var(--space-md); text-align: center; color: var(--text-secondary); font-size: var(--text-sm);">
+                        <span id="completedCount">0</span> of <span id="totalCount">0</span> habits
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pomodoro Timer Section -->
+            <div style="margin-top: var(--space-2xl);">
+                <div class="pomodoro-container" id="pomodoroContainer">
+                    <div class="timer-session-info" id="sessionInfo">Work Session 1 of 4</div>
+                    <div class="timer-display" id="timerDisplay">25:00</div>
+
+                    <div style="margin: var(--space-lg) 0;">
+                        <label class="form-label" style="color: white;">Link to habit (optional)</label>
+                        <select id="habitSelect" class="form-select" style="max-width: 400px; margin: 0 auto;">
+                            <option value="">Custom task...</option>
+                        </select>
+                        <input type="text" id="customTask" class="form-input hidden"
+                            placeholder="What will you work on?"
+                            style="max-width: 400px; margin: var(--space-sm) auto 0;">
+                    </div>
+
+                    <div class="timer-controls">
+                        <button class="timer-btn timer-btn-primary" id="startBtn">Start</button>
+                        <button class="timer-btn hidden" id="pauseBtn">Pause</button>
+                        <button class="timer-btn hidden" id="resumeBtn">Resume</button>
+                        <button class="timer-btn hidden" id="resetBtn">Reset</button>
+                    </div>
+
+                    <div class="timer-progress">
+                        <div class="timer-progress-bar" id="timerProgressBar"></div>
+                    </div>
+
+                    <div class="session-count" style="margin-top: var(--space-xl);">
+                        <span id="sessionDots"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Today's Pomodoro Stats -->
+            <div class="card" style="margin-top: var(--space-xl);">
+                <h3 style="margin-bottom: var(--space-md);">Today's Pomodoro Sessions</h3>
+                <div class="stat-group">
+                    <div class="stat-item">
+                        <div class="stat-value" id="todayPomodoroCount">0</div>
+                        <div class="stat-label">Sessions</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="todayPomodoroMinutes">0</div>
+                        <div class="stat-label">Minutes</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="/js/auth.js"></script>
+    <script src="/js/utils.js"></script>
+    <script src="/js/theme.js"></script>
+    <script>
+        // Protect page - require authentication
+        auth.requireAuth();
+
+        // Initialize user info
+        const user = auth.getUser();
+        if (user) {
+            document.getElementById('userName').textContent = user.displayName || user.email.split('@')[0];
+        }
+
+        // Set current date
+        const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        document.getElementById('currentDate').textContent = new Date().toLocaleDateString('en-US', dateOptions);
+
+        // Logout
+        document.getElementById('logoutBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            auth.logout();
+        });
+
+        // Pomodoro Timer State
+        let timerInterval = null;
+        let remainingSeconds = 25 * 60;
+        let totalSeconds = 25 * 60;
+        let isRunning = false;
+        let isPaused = false;
+        let currentSession = 1;
+        let completedSessions = 0;
+        let sessionType = 'work'; // or 'break'
+
+        const timerDisplay = document.getElementById('timerDisplay');
+        const timerProgressBar = document.getElementById('timerProgressBar');
+        const startBtn = document.getElementById('startBtn');
+        const pauseBtn = document.getElementById('pauseBtn');
+        const resumeBtn = document.getElementById('resumeBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const sessionInfo = document.getElementById('sessionInfo');
+        const pomodoroContainer = document.getElementById('pomodoroContainer');
+        const habitSelect = document.getElementById('habitSelect');
+        const customTask = document.getElementById('customTask');
+
+        // Show custom task input when no habit selected
+        habitSelect.addEventListener('change', () => {
+            if (habitSelect.value === '') {
+                customTask.classList.remove('hidden');
+            } else {
+                customTask.classList.add('hidden');
+            }
+        });
+
+        function updateTimerDisplay() {
+            timerDisplay.textContent = utils.formatTime(remainingSeconds);
+            const progress = ((totalSeconds - remainingSeconds) / totalSeconds) * 100;
+            timerProgressBar.style.width = progress + '%';
+        }
+
+        function updateSessionDots() {
+            const dotsHtml = Array.from({ length: 4 }, (_, i) => {
+                const isActive = i < completedSessions;
+                return `<span class="session-dot ${isActive ? 'active' : ''}"></span>`;
+            }).join('');
+            document.getElementById('sessionDots').innerHTML = dotsHtml;
+        }
+
+        function startTimer() {
+            if (isRunning) return;
+
+            isRunning = true;
+            isPaused = false;
+            startBtn.classList.add('hidden');
+            pauseBtn.classList.remove('hidden');
+            resetBtn.classList.remove('hidden');
+
+            timerInterval = setInterval(() => {
+                if (remainingSeconds > 0) {
+                    remainingSeconds--;
+                    updateTimerDisplay();
+                } else {
+                    completeSession();
+                }
+            }, 1000);
+        }
+
+        function pauseTimer() {
+            isPaused = true;
+            isRunning = false;
+            clearInterval(timerInterval);
+            pauseBtn.classList.add('hidden');
+            resumeBtn.classList.remove('hidden');
+        }
+
+        function resumeTimer() {
+            startTimer();
+            resumeBtn.classList.add('hidden');
+        }
+
+        function resetTimer() {
+            clearInterval(timerInterval);
+            isRunning = false;
+            isPaused = false;
+            remainingSeconds = sessionType === 'work' ? 25 * 60 : 5 * 60;
+            totalSeconds = remainingSeconds;
+            updateTimerDisplay();
+
+            startBtn.classList.remove('hidden');
+            pauseBtn.classList.add('hidden');
+            resumeBtn.classList.add('hidden');
+            resetBtn.classList.add('hidden');
+        }
+
+        async function completeSession() {
+            clearInterval(timerInterval);
+            isRunning = false;
+
+            if (sessionType === 'work') {
+                // Save work session
+                const habitId = habitSelect.value || null;
+                const taskName = habitId ? null : (customTask.value || 'Focus session');
+
+                try {
+                    await api.apiCall('/pomodoro', {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            habitId: habitId ? parseInt(habitId) : null,
+                            taskName,
+                            duration: 25,
+                            sessionType: 'work'
+                        })
+                    });
+
+                    completedSessions++;
+                    updateSessionDots();
+                    loadTodayPomodoros(); // Refresh stats
+                } catch (error) {
+                    console.error('Failed to save Pomodoro session:', error);
+                }
+
+                utils.showToast('🎉 Work session complete! Time for a break.', 'success', 5000);
+
+                // Start break
+                if (completedSessions % 4 === 0) {
+                    // Long break after 4 sessions
+                    sessionType = 'break';
+                    remainingSeconds = 15 * 60;
+                    totalSeconds = 15 * 60;
+                    sessionInfo.textContent = 'Long Break (15 min)';
+                    pomodoroContainer.classList.add('break-mode');
+                } else {
+                    // Short break
+                    sessionType = 'break';
+                    remainingSeconds = 5 * 60;
+                    totalSeconds = 5 * 60;
+                    sessionInfo.textContent = 'Short Break (5 min)';
+                    pomodoroContainer.classList.add('break-mode');
+                }
+            } else {
+                // Break completed
+                utils.showToast('Break over! Ready for the next session?', 'info');
+
+                sessionType = 'work';
+                remainingSeconds = 25 * 60;
+                totalSeconds = 25 * 60;
+                currentSession = (completedSessions % 4) + 1;
+                sessionInfo.textContent = `Work Session ${currentSession} of 4`;
+                pomodoroContainer.classList.remove('break-mode');
+            }
+
+            updateTimerDisplay();
+            resetBtn.classList.remove('hidden');
+            startBtn.textContent = sessionType === 'work' ? 'Start Work' : 'Start Break';
+            startBtn.classList.remove('hidden');
+            pauseBtn.classList.add('hidden');
+            resumeBtn.classList.add('hidden');
+        }
+
+        startBtn.addEventListener('click', startTimer);
+        pauseBtn.addEventListener('click', pauseTimer);
+        resumeBtn.addEventListener('click', resumeTimer);
+        resetBtn.addEventListener('click', resetTimer);
+
+        // Load today's habits
+        async function loadTodayHabits() {
+            try {
+                const data = await api.apiCall('/habits/today');
+                const habits = data.habits || [];
+
+                const container = document.getElementById('todayHabits');
+
+                if (habits.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">✓</div>
+                            <div class="empty-state-title">No habits yet</div>
+                            <div class="empty-state-description">Create your first habit to get started</div>
+                            <a href="/habits.html" class="btn btn-primary" style="margin-top: var(--space-md);">Create Habit</a>
+                        </div>
+                    `;
+                    updateProgress(0, 0);
+                    return;
+                }
+
+                // Populate habit select for Pomodoro
+                habitSelect.innerHTML = '<option value="">Custom task...</option>' +
+                    habits.map(h => `<option value="${h.id}">${h.name}</option>`).join('');
+
+                const completed = habits.filter(h => h.completed).length;
+                updateProgress(completed, habits.length);
+
+                container.innerHTML = habits.map(habit => `
+                    <div class="habit-card ${habit.completed ? 'completed' : ''}" data-habit-id="${habit.id}">
+                        <div class="habit-checkbox">
+                            <span class="habit-checkbox-icon">✓</span>
+                        </div>
+                        <div class="habit-info">
+                            <div class="habit-name">${habit.name}</div>
+                            <div class="habit-category">
+                                <span class="category-badge ${habit.category}">${habit.category}</span>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+
+                // Add click handlers
+                container.querySelectorAll('.habit-card').forEach(card => {
+                    card.addEventListener('click', () => toggleHabit(card));
+                });
+            } catch (error) {
+                console.error('Failed to load habits:', error);
+                utils.showToast('Failed to load habits', 'error');
+            }
+        }
+
+        async function toggleHabit(card) {
+            const habitId = card.dataset.habitId;
+
+            try {
+                await api.apiCall(`/habits/${habitId}/complete`, {
+                    method: 'POST',
+                    body: JSON.stringify({})
+                });
+
+                // Reload habits
+                await loadTodayHabits();
+                utils.showToast('Habit updated!', 'success', 2000);
+            } catch (error) {
+                console.error('Failed to toggle habit:', error);
+                utils.showToast('Failed to update habit', 'error');
+            }
+        }
+
+        function updateProgress(completed, total) {
+            const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
+            document.getElementById('completionPercentage').textContent = percentage + '%';
+            document.getElementById('progressBar').style.width = percentage + '%';
+            document.getElementById('completedCount').textContent = completed;
+            document.getElementById('totalCount').textContent = total;
+        }
+
+        // Load today's Pomodoro stats
+        async function loadTodayPomodoros() {
+            try {
+                const data = await api.apiCall('/pomodoro/today');
+                const summary = data.summary || { workSessions: 0, totalMinutes: 0 };
+
+                document.getElementById('todayPomodoroCount').textContent = summary.workSessions;
+                document.getElementById('todayPomodoroMinutes').textContent = summary.totalMinutes;
+            } catch (error) {
+                console.error('Failed to load Pomodoro stats:', error);
+            }
+        }
+
+        // Initialize
+        updateTimerDisplay();
+        updateSessionDots();
+        loadTodayHabits();
+        loadTodayPomodoros();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Praxis Dashboard - Track your habits with AI">
+    <meta name="theme-color" content="#6b7d5c">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Praxis">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <title>Dashboard - Praxis</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        :root {
+            --olive-green: #6b7d5c;
+            --olive-light: #8a9a7a;
+            --olive-dark: #556348;
+            --beige: #e8e4dc;
+            --soft-white: #f5f3ef;
+            --warm-gray: #999;
+            --text-dark: #333;
+            --shadow-subtle: rgba(0, 0, 0, 0.08);
+            --shadow-medium: rgba(0, 0, 0, 0.12);
+            --success-green: #6b9d5c;
+            --header-height: 70px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--soft-white);
+            color: var(--text-dark);
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            background: white;
+            height: var(--header-height);
+            box-shadow: 0 2px 8px var(--shadow-subtle);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 300;
+            color: var(--olive-green);
+            letter-spacing: 2px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--olive-green), var(--olive-light));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .user-name {
+            font-weight: 500;
+            color: var(--text-dark);
+        }
+
+        /* Main Content */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 32px 24px;
+        }
+
+        .welcome-section {
+            margin-bottom: 32px;
+        }
+
+        .welcome-section h1 {
+            font-size: 2rem;
+            font-weight: 300;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+        }
+
+        .welcome-section p {
+            color: var(--warm-gray);
+            font-size: 0.95rem;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px var(--shadow-subtle);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px var(--shadow-medium);
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--warm-gray);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 600;
+            color: var(--olive-green);
+        }
+
+        .stat-unit {
+            font-size: 1rem;
+            font-weight: 400;
+            color: var(--warm-gray);
+        }
+
+        /* Main Grid Layout */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 24px;
+        }
+
+        /* Habit Table Section */
+        .habit-section {
+            background: white;
+            border-radius: 8px;
+            padding: 24px;
+            box-shadow: 0 2px 8px var(--shadow-subtle);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 500;
+            color: var(--text-dark);
+        }
+
+        .btn-add {
+            background-color: var(--olive-green);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-add:hover {
+            background-color: var(--olive-light);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px var(--shadow-subtle);
+        }
+
+        /* Habit Table */
+        .table-wrapper {
+            overflow-x: auto;
+            border-radius: 8px;
+        }
+
+        .habit-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 600px;
+        }
+
+        .habit-table thead {
+            background-color: var(--beige);
+        }
+
+        .habit-table th {
+            padding: 16px 12px;
+            text-align: left;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .habit-table th:first-child {
+            border-radius: 8px 0 0 0;
+            padding-left: 20px;
+        }
+
+        .habit-table th:last-child {
+            border-radius: 0 8px 0 0;
+        }
+
+        .habit-table td {
+            padding: 16px 12px;
+            border-bottom: 1px solid var(--beige);
+        }
+
+        .habit-table td:first-child {
+            padding-left: 20px;
+            font-weight: 500;
+        }
+
+        .habit-table tbody tr {
+            transition: background-color 0.2s ease;
+        }
+
+        .habit-table tbody tr:hover {
+            background-color: rgba(107, 125, 92, 0.05);
+        }
+
+        .habit-name {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .habit-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            background: linear-gradient(135deg, var(--olive-green), var(--olive-light));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1rem;
+        }
+
+        /* Custom Checkbox */
+        .checkbox-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .custom-checkbox {
+            position: relative;
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+        }
+
+        .custom-checkbox input {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .checkmark {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 24px;
+            width: 24px;
+            background-color: white;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .custom-checkbox:hover .checkmark {
+            border-color: var(--olive-green);
+            transform: scale(1.1);
+        }
+
+        .custom-checkbox input:checked~.checkmark {
+            background-color: var(--olive-green);
+            border-color: var(--olive-green);
+            animation: checkboxPop 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes checkboxPop {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.2);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .checkmark:after {
+            content: "";
+            position: absolute;
+            display: none;
+            left: 7px;
+            top: 3px;
+            width: 6px;
+            height: 11px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+
+        .custom-checkbox input:checked~.checkmark:after {
+            display: block;
+            animation: checkmarkDraw 0.3s ease-in-out;
+        }
+
+        @keyframes checkmarkDraw {
+            0% {
+                height: 0;
+            }
+
+            100% {
+                height: 11px;
+            }
+        }
+
+        /* Charts Section */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            margin-top: 24px;
+        }
+
+        .chart-card {
+            background: white;
+            border-radius: 8px;
+            padding: 24px;
+            box-shadow: 0 2px 8px var(--shadow-subtle);
+        }
+
+        .chart-title {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: var(--text-dark);
+            margin-bottom: 20px;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 250px;
+        }
+
+        /* Responsive */
+        @media (min-width: 1024px) {
+            .dashboard-grid {
+                grid-template-columns: 2fr 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 0 16px;
+            }
+
+            .container {
+                padding: 24px 16px;
+            }
+
+            .welcome-section h1 {
+                font-size: 1.5rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .user-name {
+                display: none;
+            }
+
+            .habit-table th,
+            .habit-table td {
+                padding: 12px 8px;
+            }
+
+            .habit-table th:first-child,
+            .habit-table td:first-child {
+                padding-left: 12px;
+            }
+        }
+
+        /* Add Habit Form */
+        .add-habit-form {
+            display: none;
+            margin-top: 16px;
+            padding: 20px;
+            background-color: var(--beige);
+            border-radius: 8px;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .add-habit-form.show {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--olive-green);
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background-color: var(--olive-green);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--olive-light);
+        }
+
+        .btn-secondary {
+            background-color: white;
+            color: var(--text-dark);
+            border: 1px solid #ddd;
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--beige);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-left">
+            <div class="logo">PRAXIS</div>
+        </div>
+        <div class="user-info">
+            <span class="user-name">John Doe</span>
+            <div class="user-avatar">JD</div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Welcome Section -->
+        <div class="welcome-section">
+            <h1>Welcome back!</h1>
+            <p>Let's track your progress and build better habits</p>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Total Habits</div>
+                <div class="stat-value" id="totalHabits">5</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Completion Rate</div>
+                <div class="stat-value" id="completionRate">78<span class="stat-unit">%</span></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Current Streak</div>
+                <div class="stat-value" id="currentStreak">12<span class="stat-unit"> days</span></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">This Week</div>
+                <div class="stat-value" id="thisWeekCount">27<span class="stat-unit">/35</span></div>
+            </div>
+        </div>
+
+        <!-- Habit Table Section -->
+        <div class="habit-section">
+            <div class="section-header">
+                <h2 class="section-title">My Habits</h2>
+                <button class="btn-add" id="btnAddHabit">
+                    <span>+</span>
+                    <span>Add Habit</span>
+                </button>
+            </div>
+
+            <!-- Add Habit Form -->
+            <div class="add-habit-form" id="addHabitForm">
+                <div class="form-group">
+                    <label for="habitName">Habit Name</label>
+                    <input type="text" id="habitName" placeholder="e.g., Morning Meditation">
+                </div>
+                <div class="form-group">
+                    <label for="habitIcon">Emoji Icon (optional)</label>
+                    <input type="text" id="habitIcon" placeholder="e.g., 🧘" maxlength="2">
+                </div>
+                <div class="form-actions">
+                    <button class="btn btn-secondary" id="btnCancelAdd">Cancel</button>
+                    <button class="btn btn-primary" id="btnSaveHabit">Save Habit</button>
+                </div>
+            </div>
+
+            <!-- Habit Table -->
+            <div class="table-wrapper">
+                <table class="habit-table">
+                    <thead>
+                        <tr>
+                            <th>Habit</th>
+                            <th>Mon</th>
+                            <th>Tue</th>
+                            <th>Wed</th>
+                            <th>Thu</th>
+                            <th>Fri</th>
+                            <th>Sat</th>
+                            <th>Sun</th>
+                        </tr>
+                    </thead>
+                    <tbody id="habitTableBody">
+                        <!-- Habits will be inserted here by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="charts-grid">
+            <div class="chart-card">
+                <h3 class="chart-title">Weekly Completion</h3>
+                <div class="chart-container">
+                    <canvas id="pieChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-card">
+                <h3 class="chart-title">Progress Trend</h3>
+                <div class="chart-container">
+                    <canvas id="lineChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample data
+        const habits = [
+            { id: 1, name: 'Morning Meditation', icon: '🧘', days: [true, true, false, true, true, true, false] },
+            { id: 2, name: 'Read for 30 mins', icon: '📚', days: [true, false, true, true, true, false, true] },
+            { id: 3, name: 'Exercise', icon: '💪', days: [true, true, true, false, true, true, false] },
+            { id: 4, name: 'Drink 8 glasses of water', icon: '💧', days: [false, true, true, true, true, true, true] },
+            { id: 5, name: 'Journal', icon: '📝', days: [true, true, true, true, false, true, true] }
+        ];
+
+        // Load habits from localStorage or use default
+        let localHabits = JSON.parse(localStorage.getItem('praxisHabits')) || habits;
+
+        // Render habit table
+        function renderHabits() {
+            const tbody = document.getElementById('habitTableBody');
+            tbody.innerHTML = '';
+
+            localHabits.forEach((habit, index) => {
+                const row = document.createElement('tr');
+
+                // Habit name cell
+                const nameCell = document.createElement('td');
+                nameCell.innerHTML = `
+                    <div class="habit-name">
+                        <div class="habit-icon">${habit.icon}</div>
+                        <span>${habit.name}</span>
+                    </div>
+                `;
+                row.appendChild(nameCell);
+
+                // Day checkboxes
+                habit.days.forEach((checked, dayIndex) => {
+                    const dayCell = document.createElement('td');
+                    dayCell.innerHTML = `
+                        <div class="checkbox-wrapper">
+                            <label class="custom-checkbox">
+                                <input type="checkbox" ${checked ? 'checked' : ''} 
+                                       onchange="toggleDay(${index}, ${dayIndex})">
+                                <span class="checkmark"></span>
+                            </label>
+                        </div>
+                    `;
+                    row.appendChild(dayCell);
+                });
+
+                tbody.appendChild(row);
+            });
+
+            updateStats();
+            updateCharts();
+            saveToLocalStorage();
+        }
+
+        // Toggle day checkbox
+        function toggleDay(habitIndex, dayIndex) {
+            localHabits[habitIndex].days[dayIndex] = !localHabits[habitIndex].days[dayIndex];
+            updateStats();
+            updateCharts();
+            saveToLocalStorage();
+        }
+
+        // Update statistics
+        function updateStats() {
+            const totalHabits = localHabits.length;
+            const totalPossible = totalHabits * 7;
+            const totalCompleted = localHabits.reduce((sum, habit) =>
+                sum + habit.days.filter(d => d).length, 0);
+            const completionRate = totalPossible > 0 ? Math.round((totalCompleted / totalPossible) * 100) : 0;
+
+            document.getElementById('totalHabits').textContent = totalHabits;
+            document.getElementById('completionRate').innerHTML = completionRate + '<span class="stat-unit">%</span>';
+            document.getElementById('thisWeekCount').innerHTML = totalCompleted + '<span class="stat-unit">/' + totalPossible + '</span>';
+        }
+
+        // Save to localStorage
+        function saveToLocalStorage() {
+            localStorage.setItem('praxisHabits', JSON.stringify(localHabits));
+        }
+
+        // Add habit form toggle
+        document.getElementById('btnAddHabit').addEventListener('click', () => {
+            document.getElementById('addHabitForm').classList.add('show');
+        });
+
+        document.getElementById('btnCancelAdd').addEventListener('click', () => {
+            document.getElementById('addHabitForm').classList.remove('show');
+            document.getElementById('habitName').value = '';
+            document.getElementById('habitIcon').value = '';
+        });
+
+        document.getElementById('btnSaveHabit').addEventListener('click', () => {
+            const name = document.getElementById('habitName').value.trim();
+            const icon = document.getElementById('habitIcon').value.trim() || '✓';
+
+            if (name) {
+                const newHabit = {
+                    id: Date.now(),
+                    name: name,
+                    icon: icon,
+                    days: [false, false, false, false, false, false, false]
+                };
+                localHabits.push(newHabit);
+                renderHabits();
+                document.getElementById('addHabitForm').classList.remove('show');
+                document.getElementById('habitName').value = '';
+                document.getElementById('habitIcon').value = '';
+            }
+        });
+
+        // Initialize charts
+        let pieChart, lineChart;
+
+        function updateCharts() {
+            // Pie Chart - Weekly Completion
+            const totalPossible = localHabits.length * 7;
+            const totalCompleted = localHabits.reduce((sum, habit) =>
+                sum + habit.days.filter(d => d).length, 0);
+            const incomplete = totalPossible - totalCompleted;
+
+            const pieCtx = document.getElementById('pieChart').getContext('2d');
+
+            if (pieChart) {
+                pieChart.destroy();
+            }
+
+            const completionPercentage = totalPossible > 0 ? Math.round((totalCompleted / totalPossible) * 100) : 0;
+            const incompletePercentage = 100 - completionPercentage;
+
+            pieChart = new Chart(pieCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Completed', 'Incomplete'],
+                    datasets: [{
+                        data: [totalCompleted, incomplete],
+                        backgroundColor: ['#6b7d5c', '#e8e4dc'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                font: {
+                                    family: 'Inter',
+                                    size: 12
+                                },
+                                generateLabels: function (chart) {
+                                    const data = chart.data;
+                                    if (data.labels.length && data.datasets.length) {
+                                        return data.labels.map((label, i) => {
+                                            const value = data.datasets[0].data[i];
+                                            const percentage = i === 0 ? completionPercentage : incompletePercentage;
+                                            return {
+                                                text: `${label}: ${percentage}%`,
+                                                fillStyle: data.datasets[0].backgroundColor[i],
+                                                hidden: false,
+                                                index: i
+                                            };
+                                        });
+                                    }
+                                    return [];
+                                }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            padding: 12,
+                            bodyFont: {
+                                family: 'Inter'
+                            },
+                            callbacks: {
+                                label: function (context) {
+                                    const label = context.label || '';
+                                    const value = context.parsed;
+                                    const percentage = context.dataIndex === 0 ? completionPercentage : incompletePercentage;
+                                    return `${label}: ${value} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    },
+                    animation: {
+                        animateRotate: true,
+                        animateScale: true
+                    }
+                }
+            });
+
+            // Line Chart - Daily Progress
+            const dailyCompletions = [0, 0, 0, 0, 0, 0, 0];
+            localHabits.forEach(habit => {
+                habit.days.forEach((checked, index) => {
+                    if (checked) dailyCompletions[index]++;
+                });
+            });
+
+            const lineCtx = document.getElementById('lineChart').getContext('2d');
+
+            if (lineChart) {
+                lineChart.destroy();
+            }
+
+            const totalHabitsCount = localHabits.length;
+
+            lineChart = new Chart(lineCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    datasets: [{
+                        label: 'Completed Habits',
+                        data: dailyCompletions,
+                        borderColor: '#6b7d5c',
+                        backgroundColor: 'rgba(107, 125, 92, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        pointRadius: 5,
+                        pointHoverRadius: 7,
+                        pointBackgroundColor: '#6b7d5c',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            padding: 12,
+                            bodyFont: {
+                                family: 'Inter'
+                            },
+                            callbacks: {
+                                label: function (context) {
+                                    const value = context.parsed.y;
+                                    const percentage = totalHabitsCount > 0 ? Math.round((value / totalHabitsCount) * 100) : 0;
+                                    return `Completed: ${value}/${totalHabitsCount} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1,
+                                font: {
+                                    family: 'Inter'
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                font: {
+                                    family: 'Inter'
+                                }
+                            },
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Initial render
+        renderHabits();
+    </script>
+
+    <!-- Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./service-worker.js')
+                    .then((registration) => {
+                        console.log('Service Worker registered successfully:', registration.scope);
+                    })
+                    .catch((error) => {
+                        console.log('Service Worker registration failed:', error);
+                    });
+            });
+        }
+    </script>
+</body>
+
+</html>

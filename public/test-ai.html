@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Test | Praxis</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+
+        .test-card {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: #4A5D23;
+        }
+
+        button {
+            background: #4A5D23;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+
+        button:hover {
+            background: #3B4A1C;
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .loading {
+            background: #fff3cd;
+            color: #856404;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="test-card">
+        <h1>🔧 Praxis AI Diagnostics</h1>
+        <p>Test your Gemini API connection and troubleshoot issues.</p>
+
+        <h3>Step 1: Login First</h3>
+        <button onclick="window.location.href='/login.html'">Go to Login</button>
+
+        <h3>Step 2: Run Tests</h3>
+        <button onclick="testAPI()">Test API Connection</button>
+        <button onclick="testSimplePrompt()">Test Simple Prompt</button>
+        <button onclick="testFullCoach()">Test Full AI Coach</button>
+
+        <div id="results"></div>
+    </div>
+
+    <script>
+        const resultsDiv = document.getElementById('results');
+
+        function showResult(message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `result ${type}`;
+            div.textContent = message;
+            resultsDiv.appendChild(div);
+        }
+
+        function clearResults() {
+            resultsDiv.innerHTML = '';
+        }
+
+        async function testAPI() {
+            clearResults();
+            showResult('Testing Gemini API connection...', 'loading');
+
+            const token = localStorage.getItem('praxis_token');
+            if (!token) {
+                showResult('❌ Not logged in! Please login first.', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/ai/test', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showResult('✅ SUCCESS!\n' + JSON.stringify(data, null, 2), 'success');
+                } else {
+                    showResult('❌ FAILED:\n' + JSON.stringify(data, null, 2), 'error');
+                }
+            } catch (error) {
+                showResult('❌ ERROR:\n' + error.toString(), 'error');
+            }
+        }
+
+        async function testSimplePrompt() {
+            clearResults();
+            showResult('Testing simple AI generation...', 'loading');
+
+            const token = localStorage.getItem('praxis_token');
+            if (!token) {
+                showResult('❌ Not logged in! Please login first.', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/ai/coach', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        goals: 'Just testing the AI',
+                        availableTime: '1 hour'
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showResult('✅ AI WORKING!\n' + JSON.stringify(data, null, 2), 'success');
+                } else {
+                    showResult('❌ AI FAILED:\n' + JSON.stringify(data, null, 2), 'error');
+                }
+            } catch (error) {
+                showResult('❌ ERROR:\n' + error.toString(), 'error');
+            }
+        }
+
+        async function testFullCoach() {
+            clearResults();
+            showResult('Testing full AI Coach flow...', 'loading');
+
+            const token = localStorage.getItem('praxis_token');
+            if (!token) {
+                showResult('❌ Not logged in! Please login first.', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/ai/coach', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        goals: 'I want to focus on studying for my exams and maintain my exercise routine',
+                        availableTime: '4 hours today'
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.suggestions) {
+                    showResult('✅ FULL AI COACH WORKING!\n\nRecommended Habits:\n' +
+                        data.suggestions.recommendedHabits.map(h => `- ${h.habit}: ${h.why}`).join('\n') +
+                        '\n\nPomodoro Schedule:\n' +
+                        data.suggestions.pomodoroSchedule.map(s => `- ${s.habit}: ${s.sessions} sessions`).join('\n') +
+                        '\n\nMotivation:\n"' + data.suggestions.motivation + '"',
+                        'success'
+                    );
+                } else {
+                    showResult('❌ FAILED:\n' + JSON.stringify(data, null, 2), 'error');
+                }
+            } catch (error) {
+                showResult('❌ ERROR:\n' + error.toString(), 'error');
+            }
+        }
+    </script>
+</body>
+
+</html>

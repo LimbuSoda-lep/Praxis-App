@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Habits | Praxis</title>
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/components.css">
+</head>
+
+<body>
+    <header class="header">
+        <div class="container nav-wrapper">
+            <div class="brand">
+                <a href="/dashboard.html" class="logo">Praxis</a>
+                <span class="tagline">Daily practice. Real progress.</span>
+            </div>
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="/dashboard.html">Dashboard</a></li>
+                    <li><a href="/habits.html" style="color: var(--accent-primary);">Habits</a></li>
+                    <li><a href="/ai-coach.html">AI Coach</a></li>
+                    <li>
+                        <div class="theme-toggle" title="Toggle theme">
+                            <div class="theme-toggle-thumb"></div>
+                        </div>
+                    </li>
+                    <li><a href="#" id="logoutBtn" class="btn btn-ghost btn-sm">Logout</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="section">
+        <div class="container">
+            <div
+                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-2xl);">
+                <div>
+                    <h1>Your Habits</h1>
+                    <p style="color: var(--text-secondary);">Build consistency through daily practice</p>
+                </div>
+                <button class="btn btn-primary" id="addHabitBtn">+ Add Habit</button>
+            </div>
+
+            <div id="habitsList">
+                <div style="text-align: center; padding: var(--space-3xl);">
+                    <div class="spinner"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Add/Edit Habit Modal -->
+    <div id="habitModal" class="modal-overlay hidden">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalTitle">Add Habit</h3>
+                <button class="modal-close" id="closeModal">×</button>
+            </div>
+            <div class="modal-body">
+                <form id="habitForm">
+                    <input type="hidden" id="habitId">
+
+                    <div class="form-group">
+                        <label class="form-label" for="habitName">Habit Name *</label>
+                        <input type="text" id="habitName" class="form-input" required
+                            placeholder="e.g., Morning exercise, Read 30 minutes">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="habitCategory">Category *</label>
+                        <select id="habitCategory" class="form-select" required>
+                            <option value="">Select category...</option>
+                            <option value="study">Study</option>
+                            <option value="health">Health</option>
+                            <option value="work">Work</option>
+                            <option value="custom">Custom</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="weeklyTarget">Weekly Target (days)</label>
+                        <input type="number" id="weeklyTarget" class="form-input" min="1" max="7" value="7"
+                            placeholder="7">
+                        <div class="form-hint">How many days per week do you want to practice this habit?</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="habitColor">Color</label>
+                        <input type="color" id="habitColor" class="form-input" value="#4A5D23"
+                            style="height: 50px; cursor: pointer;">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelBtn">Cancel</button>
+                <button class="btn btn-primary" id="saveHabitBtn">Save Habit</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Habit Stats Modal -->
+    <div id="statsModal" class="modal-overlay hidden">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title" id="statsTitle">Habit Statistics</h3>
+                <button class="modal-close" id="closeStatsModal">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="stat-group">
+                    <div class="stat-item">
+                        <div class="stat-value" id="statsStreak">0</div>
+                        <div class="stat-label">Current Streak</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="statsRate">0%</div>
+                        <div class="stat-label">30-Day Rate</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="statsTotal">0</div>
+                        <div class="stat-label">Total Completions</div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="closeStatsBtn">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/auth.js"></script>
+    <script src="/js/utils.js"></script>
+    <script src="/js/theme.js"></script>
+    <script>
+        auth.requireAuth();
+
+        document.getElementById('logoutBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            auth.logout();
+        });
+
+        const habitModal = document.getElementById('habitModal');
+        const statsModal = document.getElementById('statsModal');
+        const habitForm = document.getElementById('habitForm');
+        let currentEditingId = null;
+
+        // Modal controls
+        document.getElementById('addHabitBtn').addEventListener('click', () => {
+            currentEditingId = null;
+            habitForm.reset();
+            document.getElementById('modalTitle').textContent = 'Add Habit';
+            habitModal.classList.remove('hidden');
+        });
+
+        document.getElementById('closeModal').addEventListener('click', () => {
+            habitModal.classList.add('hidden');
+        });
+
+        document.getElementById('cancelBtn').addEventListener('click', () => {
+            habitModal.classList.add('hidden');
+        });
+
+        document.getElementById('closeStatsModal').addEventListener('click', () => {
+            statsModal.classList.add('hidden');
+        });
+
+        document.getElementById('closeStatsBtn').addEventListener('click', () => {
+            statsModal.classList.add('hidden');
+        });
+
+        // Save habit
+        document.getElementById('saveHabitBtn').addEventListener('click', async () => {
+            const name = document.getElementById('habitName').value;
+            const category = document.getElementById('habitCategory').value;
+            const weeklyTarget = document.getElementById('weeklyTarget').value || 7;
+            const color = document.getElementById('habitColor').value;
+
+            if (!name || !category) {
+                utils.showToast('Please fill in all required fields', 'error');
+                return;
+            }
+
+            const saveBtn = document.getElementById('saveHabitBtn');
+
+            try {
+                utils.setLoading(saveBtn, true);
+
+                if (currentEditingId) {
+                    // Update
+                    await api.apiCall(`/habits/${currentEditingId}`, {
+                        method: 'PUT',
+                        body: JSON.stringify({ name, category, weeklyTarget, color })
+                    });
+                    utils.showToast('Habit updated!', 'success');
+                } else {
+                    // Create
+                    await api.apiCall('/habits', {
+                        method: 'POST',
+                        body: JSON.stringify({ name, category, weeklyTarget, color })
+                    });
+                    utils.showToast('Habit created!', 'success');
+                }
+
+                habitModal.classList.add('hidden');
+                loadHabits();
+            } catch (error) {
+                console.error('Failed to save habit:', error);
+                utils.showToast('Failed to save habit', 'error');
+            } finally {
+                utils.setLoading(saveBtn, false);
+            }
+        });
+
+        // Load habits
+        async function loadHabits() {
+            try {
+                const data = await api.apiCall('/habits');
+                const habits = data.habits || [];
+
+                const container = document.getElementById('habitsList');
+
+                if (habits.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">✓</div>
+                            <div class="empty-state-title">No habits yet</div>
+                            <div class="empty-state-description">
+                                Start building your daily practice by creating your first habit.
+                            </div>
+                            <button class="btn btn-primary" id="emptyAddBtn" style="margin-top: var(--space-lg);">
+                                Create First Habit
+                            </button>
+                        </div>
+                    `;
+
+                    document.getElementById('emptyAddBtn').addEventListener('click', () => {
+                        document.getElementById('addHabitBtn').click();
+                    });
+                    return;
+                }
+
+                container.innerHTML = habits.map(habit => `
+                    <div class="card" style="margin-bottom: var(--space-lg);">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: var(--space-md);">
+                            <div style="flex: 1;">
+                                <div style="display: flex; align-items: center; gap: var(--space-md); margin-bottom: var(--space-sm);">
+                                    <div style="width: 8px; height: 40px; border-radius: 4px; background-color: ${habit.color};"></div>
+                                    <div>
+                                        <h3>${habit.name}</h3>
+                                        <span class="category-badge ${habit.category}">${habit.category}</span>
+                                    </div>
+                                </div>
+                                <p style="color: var(--text-secondary); font-size: var(--text-sm); margin-left: 24px;">
+                                    Target: ${habit.weekly_target} days per week
+                                </p>
+                            </div>
+                            <div style="display: flex; gap: var(--space-sm);">
+                                <button class="btn btn-sm btn-ghost view-stats-btn" data-id="${habit.id}" data-name="${habit.name}">
+                                    📊 Stats
+                                </button>
+                                <button class="btn btn-sm btn-secondary edit-btn" data-id="${habit.id}" 
+                                        data-name="${habit.name}" data-category="${habit.category}" 
+                                        data-target="${habit.weekly_target}" data-color="${habit.color}">
+                                    Edit
+                                </button>
+                                <button class="btn btn-sm btn-outline delete-btn" data-id="${habit.id}" style="border-color: var(--error); color: var(--error);">
+                                    Delete
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+
+                // Add event listeners
+                container.querySelectorAll('.edit-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        currentEditingId = btn.dataset.id;
+                        document.getElementById('habitName').value = btn.dataset.name;
+                        document.getElementById('habitCategory').value = btn.dataset.category;
+                        document.getElementById('weeklyTarget').value = btn.dataset.target;
+                        document.getElementById('habitColor').value = btn.dataset.color;
+                        document.getElementById('modalTitle').textContent = 'Edit Habit';
+                        habitModal.classList.remove('hidden');
+                    });
+                });
+
+                container.querySelectorAll('.delete-btn').forEach(btn => {
+                    btn.addEventListener('click', () => deleteHabit(btn.dataset.id));
+                });
+
+                container.querySelectorAll('.view-stats-btn').forEach(btn => {
+                    btn.addEventListener('click', () => viewStats(btn.dataset.id, btn.dataset.name));
+                });
+            } catch (error) {
+                console.error('Failed to load habits:', error);
+                utils.showToast('Failed to load habits', 'error');
+            }
+        }
+
+        // Delete habit
+        async function deleteHabit(id) {
+            if (!confirm('Are you sure you want to delete this habit? This will also delete all completion history.')) {
+                return;
+            }
+
+            try {
+                await api.apiCall(`/habits/${id}`, { method: 'DELETE' });
+                utils.showToast('Habit deleted', 'success');
+                loadHabits();
+            } catch (error) {
+                console.error('Failed to delete habit:', error);
+                utils.showToast('Failed to delete habit', 'error');
+            }
+        }
+
+        // View stats
+        async function viewStats(id, name) {
+            try {
+                const data = await api.apiCall(`/habits/${id}/stats`);
+
+                document.getElementById('statsTitle').textContent = name;
+                document.getElementById('statsStreak').textContent = data.currentStreak + ' days';
+                document.getElementById('statsRate').textContent = data.completionRate + '%';
+                document.getElementById('statsTotal').textContent = data.totalCompletions;
+
+                statsModal.classList.remove('hidden');
+            } catch (error) {
+                console.error('Failed to load stats:', error);
+                utils.showToast('Failed to load statistics', 'error');
+            }
+        }
+
+        // Initialize
+        loadHabits();
+    </script>
+</body>
+
+</html>

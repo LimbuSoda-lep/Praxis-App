@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Praxis - Daily Practice. Real Progress.</title>
+    <style>
+        /* Reset and base styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333; /* Charcoal */
+            background-color: #f5f5dc; /* Off-white/beige */
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        header {
+            background-color: #f5f5dc; /* Off-white/beige */
+            padding: 1rem;
+            border-bottom: 1px solid #d3d3d3; /* Warm grey */
+        }
+
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .brand {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .brand h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #333; /* Charcoal */
+        }
+
+        .brand p {
+            font-size: 0.875rem;
+            color: #696969; /* Warm grey */
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #696969; /* Warm grey */
+            font-size: 0.875rem;
+        }
+
+        /* Main content */
+        main {
+            flex: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        /* Hero section */
+        .hero {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .hero h1 {
+            font-size: 2rem;
+            font-weight: 500;
+            margin-bottom: 1rem;
+            color: #333; /* Charcoal */
+        }
+
+        .hero p {
+            font-size: 1rem;
+            color: #696969; /* Warm grey */
+            max-width: 600px;
+            margin: 0 auto 2rem;
+        }
+
+        .cta-primary {
+            display: inline-block;
+            background-color: #556b2f; /* Soft olive green */
+            color: #f5f5dc; /* Off-white/beige */
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
+            margin-right: 1rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .cta-secondary {
+            color: #696969; /* Warm grey */
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        /* Features section */
+        .features {
+            margin-bottom: 4rem;
+        }
+
+        .features h2 {
+            font-size: 1.5rem;
+            font-weight: 500;
+            text-align: center;
+            margin-bottom: 2rem;
+            color: #333; /* Charcoal */
+        }
+
+        .feature-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            background-color: #f5f5dc; /* Off-white/beige */
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .feature-item svg {
+            width: 24px;
+            height: 24px;
+            margin-right: 1rem;
+            fill: #696969; /* Warm grey */
+        }
+
+        .feature-item p {
+            font-size: 1rem;
+            color: #333; /* Charcoal */
+        }
+
+        /* AI section */
+        .ai {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .ai h2 {
+            font-size: 1.5rem;
+            font-weight: 500;
+            margin-bottom: 1rem;
+            color: #333; /* Charcoal */
+        }
+
+        .ai p {
+            font-size: 1rem;
+            color: #696969; /* Warm grey */
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Footer */
+        footer {
+            background-color: #f5f5dc; /* Off-white/beige */
+            padding: 1rem;
+            border-top: 1px solid #d3d3d3; /* Warm grey */
+            text-align: center;
+        }
+
+        footer p {
+            font-size: 0.875rem;
+            color: #696969; /* Warm grey */
+        }
+
+        footer a {
+            color: #696969; /* Warm grey */
+            text-decoration: none;
+            margin: 0 0.5rem;
+        }
+
+        /* Responsive design */
+        @media (min-width: 768px) {
+            .nav-links {
+                gap: 2rem;
+            }
+
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .feature-list {
+                flex-direction: row;
+                justify-content: space-between;
+            }
+
+            .feature-item {
+                flex: 1;
+                max-width: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="nav">
+            <div class="brand">
+                <h1>Praxis</h1>
+                <p>Daily practice. Real progress.</p>
+            </div>
+            <div class="nav-links">
+                <a href="#features">Features</a>
+                <a href="#about">About</a>
+                <a href="#signin">Sign in</a>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section class="hero">
+            <h1>Consistency beats motivation.</h1>
+            <p>Build lasting habits through daily execution and disciplined tracking. Focus on long-term goals without distractions, supported by a calm, doctor-approved approach to personal growth.</p>
+            <a href="#" class="cta-primary">Get Started</a>
+            <a href="#" class="cta-secondary">Learn more</a>
+        </section>
+
+        <section id="features" class="features">
+            <h2>Features</h2>
+            <div class="feature-list">
+                <div class="feature-item">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9 11H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2zm2-7h-1V2h-2v2H8V2H6v2H5c-1.1 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z"/></svg>
+                    <p>Daily habit checklists</p>
+                </div>
+                <div class="feature-item">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4-5h-2V7h2v5zm4 3h-2v-2h2v2z"/></svg>
+                    <p>Monthly progress reports</p>
+                </div>
+                <div class="feature-item">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+                    <p>AI assistant “Mika”</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="ai">
+            <h2>Meet Mika</h2>
+            <p>Mika helps you stay consistent and focused on your annual goals. With a calm, strict, and supportive approach, Mika acts as your personal accountability partner, guiding you through disciplined daily practices without unnecessary distractions.</p>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; Praxis <a href="#">Privacy</a> <a href="#">Terms</a></p>
+    </footer>
+</body>
+</html>
