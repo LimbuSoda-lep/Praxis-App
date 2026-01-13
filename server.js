@@ -61,8 +61,20 @@ function getLocalIP() {
 // Initialize database and start server
 async function startServer() {
     try {
+        console.log('🔄 Initializing database...');
         await initializeDatabase();
-        console.log('✓ Database initialized');
+        console.log('✓ Database initialized successfully');
+
+        // Add manual database initialization endpoint (for debugging)
+        app.get('/api/init-db', async (req, res) => {
+            try {
+                await initializeDatabase();
+                res.json({ message: 'Database initialized successfully' });
+            } catch (error) {
+                console.error('Manual DB init error:', error);
+                res.status(500).json({ error: 'Failed to initialize database', details: error.message });
+            }
+        });
 
         app.listen(PORT, '0.0.0.0', () => {
             const localIP = getLocalIP();
@@ -70,13 +82,16 @@ async function startServer() {
             console.log(`📍 Local:   http://localhost:${PORT}`);
             console.log(`📍 Network: http://${localIP}:${PORT}`);
             console.log(`📊 API:     http://localhost:${PORT}/api`);
+            console.log(`🔧 DB Init: http://localhost:${PORT}/api/init-db`);
             console.log('\n💡 To access from mobile:');
             console.log(`   1. Connect phone to same WiFi`);
             console.log(`   2. Open: http://${localIP}:${PORT}`);
             console.log('\nPress Ctrl+C to stop\n');
         });
     } catch (error) {
-        console.error('Failed to start server:', error);
+        console.error('❌ Failed to start server:', error);
+        console.error('Error details:', error.message);
+        console.error('Stack trace:', error.stack);
         process.exit(1);
     }
 }
