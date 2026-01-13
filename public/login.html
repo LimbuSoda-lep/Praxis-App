@@ -129,7 +129,14 @@
                     window.location.href = '/dashboard.html';
                 }, 800);
             } catch (error) {
-                errorDiv.textContent = error.message || 'Login failed';
+                console.error('❌ Login failed:', error);
+                console.error('Error details:', {
+                    message: error.message,
+                    email: email,
+                    timestamp: new Date().toISOString()
+                });
+
+                errorDiv.textContent = error.message || 'Login failed. Please check your credentials.';
                 errorDiv.classList.remove('hidden');
                 utils.setLoading(submitBtn, false);
             }

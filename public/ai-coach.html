@@ -36,11 +36,11 @@
         <div class="container" style="max-width: 900px;">
             <!-- Header -->
             <div style="text-align: center; margin-bottom: var(--space-3xl);">
-                <div class="mika-badge" style="background: var(--accent-primary);">AI COACH</div>
-                <h1 style="margin: var(--space-lg) 0 var(--space-md);">Your AI Productivity Coach</h1>
+                <div class="mika-badge" style="background: var(--accent-primary);">MIKA</div>
+                <h1 style="margin: var(--space-lg) 0 var(--space-md);">Meet MIKA</h1>
                 <p style="color: var(--text-secondary); max-width: 600px; margin: 0 auto;">
-                    Share your goals and available time. I'll analyze your habits, streaks, and Pomodoro history to
-                    create a personalized plan for today.
+                    MIKA is your objective AI productivity coach. Share your goals and available time, and MIKA will
+                    analyze your habits, streaks, and focus sessions to create a data-driven plan for today.
                 </p>
             </div>
 
@@ -109,6 +109,28 @@
         </div>
     </main>
 
+    <!-- Bottom Navigation (Mobile Only) -->
+    <nav class="bottom-nav">
+        <div class="bottom-nav-container">
+            <a href="/dashboard.html" class="bottom-nav-item">
+                <div class="bottom-nav-icon">📊</div>
+                <div class="bottom-nav-label">Home</div>
+            </a>
+            <a href="/habits.html" class="bottom-nav-item">
+                <div class="bottom-nav-icon">✓</div>
+                <div class="bottom-nav-label">Habits</div>
+            </a>
+            <a href="/ai-coach.html" class="bottom-nav-item active">
+                <div class="bottom-nav-icon">🤖</div>
+                <div class="bottom-nav-label">MIKA</div>
+            </a>
+            <a href="#" id="logoutBtnMobile" class="bottom-nav-item">
+                <div class="bottom-nav-icon">👤</div>
+                <div class="bottom-nav-label">Logout</div>
+            </a>
+        </div>
+    </nav>
+
     <script src="/js/auth.js"></script>
     <script src="/js/utils.js"></script>
     <script src="/js/theme.js"></script>
@@ -116,6 +138,12 @@
         auth.requireAuth();
 
         document.getElementById('logoutBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            auth.logout();
+        });
+
+        // Mobile logout button
+        document.getElementById('logoutBtnMobile').addEventListener('click', (e) => {
             e.preventDefault();
             auth.logout();
         });

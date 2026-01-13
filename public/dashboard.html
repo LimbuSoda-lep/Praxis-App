@@ -124,6 +124,28 @@
         </div>
     </main>
 
+    <!-- Bottom Navigation (Mobile Only) -->
+    <nav class="bottom-nav">
+        <div class="bottom-nav-container">
+            <a href="/dashboard.html" class="bottom-nav-item active">
+                <div class="bottom-nav-icon">📊</div>
+                <div class="bottom-nav-label">Home</div>
+            </a>
+            <a href="/habits.html" class="bottom-nav-item">
+                <div class="bottom-nav-icon">✓</div>
+                <div class="bottom-nav-label">Habits</div>
+            </a>
+            <a href="/ai-coach.html" class="bottom-nav-item">
+                <div class="bottom-nav-icon">🤖</div>
+                <div class="bottom-nav-label">MIKA</div>
+            </a>
+            <a href="#" id="logoutBtnMobile" class="bottom-nav-item">
+                <div class="bottom-nav-icon">👤</div>
+                <div class="bottom-nav-label">Logout</div>
+            </a>
+        </div>
+    </nav>
+
     <script src="/js/auth.js"></script>
     <script src="/js/utils.js"></script>
     <script src="/js/theme.js"></script>
@@ -143,6 +165,12 @@
 
         // Logout
         document.getElementById('logoutBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            auth.logout();
+        });
+
+        // Mobile logout button
+        document.getElementById('logoutBtnMobile').addEventListener('click', (e) => {
             e.preventDefault();
             auth.logout();
         });

@@ -73,13 +73,25 @@ async function apiCall(endpoint, options = {}) {
         },
     };
 
+    console.log(`🌐 API Call: ${options.method || 'GET'} ${endpoint}`);
+
     try {
         const response = await fetch(`${API_BASE}${endpoint}`, config);
         const data = await response.json();
 
+        console.log(`📡 Response status: ${response.status} ${response.statusText}`);
+
         if (!response.ok) {
+            console.error(`❌ API Error:`, {
+                status: response.status,
+                endpoint: endpoint,
+                error: data.error || data.message,
+                data: data
+            });
+
             // Handle authentication errors
             if (response.status === 401 || response.status === 403) {
+                console.warn('🔒 Authentication failed - redirecting to login');
                 removeToken();
                 removeUser();
                 window.location.href = '/login.html';
@@ -87,9 +99,10 @@ async function apiCall(endpoint, options = {}) {
             throw new Error(data.error || 'Request failed');
         }
 
+        console.log('✅ API Success:', endpoint);
         return data;
     } catch (error) {
-        console.error('API Error:', error);
+        console.error('💥 API Error:', error);
         throw error;
     }
 }
