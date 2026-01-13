@@ -7,30 +7,30 @@
   --bg-secondary: #FFFFFF;
   --bg-tertiary: #EFECE9;
   --surface-elevated: #FFFFFF;
-  
+
   --text-primary: #2C2C2C;
   --text-secondary: #6E6A66;
   --text-tertiary: #9B9791;
   --text-inverse: #FFFFFF;
-  
+
   --accent-primary: #4A5D23;
   --accent-primary-hover: #3B4A1C;
   --accent-secondary: #8B9B5A;
-  
+
   --border-default: #E6E4E0;
   --border-subtle: #F0EDEA;
-  
+
   --success: #4A7C23;
   --warning: #C5761D;
   --error: #C52D1D;
   --info: #23476B;
-  
+
   /* Shadows */
   --shadow-sm: 0 1px 3px rgba(44, 44, 44, 0.04);
   --shadow-md: 0 2px 8px rgba(44, 44, 44, 0.06);
   --shadow-lg: 0 4px 16px rgba(44, 44, 44, 0.08);
   --shadow-xl: 0 8px 32px rgba(44, 44, 44, 0.12);
-  
+
   /* Spacing */
   --space-xs: 0.25rem;
   --space-sm: 0.5rem;
@@ -39,17 +39,17 @@
   --space-xl: 2rem;
   --space-2xl: 3rem;
   --space-3xl: 4rem;
-  
+
   /* Border Radius */
   --radius-sm: 6px;
   --radius-md: 12px;
   --radius-lg: 20px;
   --radius-full: 9999px;
-  
+
   /* Typography */
-  --font-main: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  --font-main: 'Poppins', -apple-system, BlinkMacSystemFont, system-ui, 'Segoe UI', Roboto, sans-serif;
   --font-mono: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', monospace;
-  
+
   --text-xs: 0.75rem;
   --text-sm: 0.875rem;
   --text-base: 1rem;
@@ -58,12 +58,12 @@
   --text-2xl: 1.5rem;
   --text-3xl: 2rem;
   --text-4xl: 2.5rem;
-  
+
   /* Transitions */
   --transition-fast: 150ms ease;
   --transition-base: 250ms ease;
   --transition-slow: 350ms ease;
-  
+
   /* Layout */
   --max-width: 1200px;
   --header-height: 70px;
@@ -75,24 +75,24 @@
   --bg-secondary: #242424;
   --bg-tertiary: #2E2E2E;
   --surface-elevated: #2E2E2E;
-  
+
   --text-primary: #E8E6E3;
   --text-secondary: #A8A5A1;
   --text-tertiary: #706D69;
   --text-inverse: #1A1A1A;
-  
+
   --accent-primary: #8B9B5A;
   --accent-primary-hover: #9DAA6F;
   --accent-secondary: #6E7D45;
-  
+
   --border-default: #3A3A3A;
   --border-subtle: #2E2E2E;
-  
+
   --success: #6FA837;
   --warning: #E8962D;
   --error: #E84D3D;
   --info: #4A7CB8;
-  
+
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.2);
   --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.3);
   --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.4);
@@ -100,7 +100,9 @@
 }
 
 /* --- RESET & BASE STYLES --- */
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
@@ -120,19 +122,41 @@ body {
 }
 
 /* --- TYPOGRAPHY --- */
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-weight: 600;
   letter-spacing: -0.03em;
   line-height: 1.2;
   color: var(--text-primary);
 }
 
-h1 { font-size: var(--text-4xl); }
-h2 { font-size: var(--text-3xl); }
-h3 { font-size: var(--text-2xl); }
-h4 { font-size: var(--text-xl); }
-h5 { font-size: var(--text-lg); }
-h6 { font-size: var(--text-base); }
+h1 {
+  font-size: var(--text-4xl);
+}
+
+h2 {
+  font-size: var(--text-3xl);
+}
+
+h3 {
+  font-size: var(--text-2xl);
+}
+
+h4 {
+  font-size: var(--text-xl);
+}
+
+h5 {
+  font-size: var(--text-lg);
+}
+
+h6 {
+  font-size: var(--text-base);
+}
 
 p {
   color: var(--text-secondary);
@@ -182,9 +206,17 @@ a:hover {
   justify-content: space-between;
 }
 
-.gap-sm { gap: var(--space-sm); }
-.gap-md { gap: var(--space-md); }
-.gap-lg { gap: var(--space-lg); }
+.gap-sm {
+  gap: var(--space-sm);
+}
+
+.gap-md {
+  gap: var(--space-md);
+}
+
+.gap-lg {
+  gap: var(--space-lg);
+}
 
 .text-center {
   text-align: center;
@@ -505,18 +537,21 @@ a:hover {
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.3),
-    transparent
-  );
+  background: linear-gradient(90deg,
+      transparent,
+      rgba(255, 255, 255, 0.3),
+      transparent);
   animation: shimmer 2s infinite;
 }
 
 @keyframes shimmer {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
+  0% {
+    transform: translateX(-100%);
+  }
+
+  100% {
+    transform: translateX(100%);
+  }
 }
 
 /* --- LOADING SPINNER --- */
@@ -536,7 +571,9 @@ a:hover {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* --- THEME TOGGLE --- */
@@ -574,15 +611,15 @@ a:hover {
     --text-3xl: 1.75rem;
     --text-2xl: 1.5rem;
   }
-  
+
   .nav-links {
     display: none;
   }
-  
+
   .header {
     height: 60px;
   }
-  
+
   .section {
     padding: var(--space-2xl) 0;
   }
@@ -602,8 +639,13 @@ a:hover {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 .slide-up {
@@ -615,6 +657,7 @@ a:hover {
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
