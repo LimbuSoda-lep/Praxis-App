@@ -40,7 +40,9 @@ router.post('/', async (req, res) => {
         res.status(201).json({ message: 'Habit created', habit });
     } catch (error) {
         console.error('Error creating habit:', error);
-        res.status(500).json({ error: 'Failed to create habit' });
+        console.error('Error message:', error.message);
+        console.error('Error stack:', error.stack);
+        res.status(500).json({ error: 'Failed to create habit', details: error.message });
     }
 });
 
