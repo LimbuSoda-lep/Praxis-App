@@ -43,29 +43,29 @@
                 <div class="mika-badge" style="background: var(--accent-primary);">MIKA</div>
                 <h1 style="margin: var(--space-lg) 0 var(--space-md);">Meet MIKA</h1>
                 <p style="color: var(--text-secondary); max-width: 600px; margin: 0 auto;">
-                    MIKA is your objective AI productivity coach. Share your goals and available time, and MIKA will
-                    analyze your habits, streaks, and focus sessions to create a data-driven plan for today.
+                    MIKA is your brutally honest goal coach. Share your ultimate yearly goal and MIKA will analyze your
+                    habits, give you the real truth about your progress, and create a strategic plan to get you there.
                 </p>
             </div>
 
             <!-- Input Form -->
             <div class="card" style="margin-bottom: var(--space-2xl);">
-                <h3 style="margin-bottom: var(--space-lg);">What's your plan for today?</h3>
+                <h3 style="margin-bottom: var(--space-lg);">What's your ultimate goal this year?</h3>
 
                 <form id="coachForm">
                     <div class="form-group">
-                        <label class="form-label" for="goals">Your Goals & Priorities</label>
-                        <textarea id="goals" class="form-textarea" required
-                            placeholder="Example: I want to focus on my studies today, specifically preparing for my math exam. I also want to maintain my exercise streak and do some reading."
+                        <label class="form-label" for="ultimateGoal">Your Ultimate Goal</label>
+                        <textarea id="ultimateGoal" class="form-textarea" required
+                            placeholder="Example: Get into Stanford University, Master full-stack development and launch my startup, Lose 25kg and run my first marathon"
                             style="min-height: 120px;"></textarea>
-                        <div class="form-hint">Be specific about what you want to accomplish today</div>
+                        <div class="form-hint">What's the ONE big thing you want to achieve this year?</div>
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label" for="availableTime">Available Time Today</label>
-                        <input type="text" id="availableTime" class="form-input" required
-                            placeholder="Example: 4 hours in the afternoon, 1 hour in the evening">
-                        <div class="form-hint">When and how much time do you have available?</div>
+                        <label class="form-label" for="timeframe">When do you want to achieve it?</label>
+                        <input type="text" id="timeframe" class="form-input" required
+                            placeholder="Example: By December 2026 (12 months), By June 2026 (6 months), By March 2026 (3 months)">
+                        <div class="form-hint">Be realistic - when's your deadline?</div>
                     </div>
 
                     <button type="submit" class="btn btn-primary btn-lg" style="width: 100%;">
@@ -75,7 +75,7 @@
                                 <circle cx="12" cy="12" r="2" fill="currentColor" />
                             </svg>
                         </span>
-                        Get AI Recommendations
+                        Get Your Brutally Honest Plan
                     </button>
                 </form>
             </div>
@@ -175,10 +175,10 @@
         coachForm.addEventListener('submit', async (e) => {
             e.preventDefault();
 
-            const goals = document.getElementById('goals').value;
-            const availableTime = document.getElementById('availableTime').value;
+            const ultimateGoal = document.getElementById('ultimateGoal').value;
+            const timeframe = document.getElementById('timeframe').value;
 
-            if (!goals || !availableTime) {
+            if (!ultimateGoal || !timeframe) {
                 utils.showToast('Please fill in all fields', 'error');
                 return;
             }
@@ -193,7 +193,7 @@
 
                 const data = await api.apiCall('/ai/coach', {
                     method: 'POST',
-                    body: JSON.stringify({ goals, availableTime })
+                    body: JSON.stringify({ ultimateGoal, timeframe })
                 });
 
                 // Display suggestions

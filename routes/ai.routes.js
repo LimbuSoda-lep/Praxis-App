@@ -58,7 +58,7 @@ router.get('/test', async (req, res) => {
     }
 });
 
-// AI Coach endpoint
+// AI Coach endpoint - YEARLY GOAL COACH
 router.post('/coach', async (req, res) => {
     try {
         if (!process.env.PERPLEXITY_API_KEY) {
@@ -67,10 +67,10 @@ router.post('/coach', async (req, res) => {
             });
         }
 
-        const { goals, availableTime } = req.body;
+        const { ultimateGoal, timeframe } = req.body;
 
-        if (!goals || !availableTime) {
-            return res.status(400).json({ error: 'Goals and available time are required' });
+        if (!ultimateGoal || !timeframe) {
+            return res.status(400).json({ error: 'Ultimate goal and timeframe are required' });
         }
 
         console.log('🤖 AI Coach request from user:', req.user.userId);
@@ -124,74 +124,68 @@ router.post('/coach', async (req, res) => {
             [req.user.userId]
         );
 
-        // Build MIKA prompt with comprehensive personality rules
-        const prompt = `You are MIKA, an AI productivity coach for Praxis.
+        // Build MIKA prompt with new personality: calm, cheering, brutally honest
+        const prompt = `You are MIKA, a yearly goal achievement coach with a unique personality.
 
-CORE IDENTITY:
-You evaluate objective progress and deliver controlled feedback to help users reach long-term goals through daily practice.
-- You do NOT motivate emotionally
-- You enforce clarity, realism, and consistency
-- You only react to facts, never feelings
+YOUR PERSONALITY:
+- CALM & SUPPORTIVE: You speak with warmth and understanding, never panicked or harsh
+- CHEERING: You celebrate ambition and highlight existing strengths  
+- BRUTALLY HONEST: You call out unrealistic timelines and weak spots without sugar-coating
 
-USER DATA:
-Habits:
-${habitStats.map(h => `- ${h.name} (${h.category}): Target ${h.weeklyTarget}/7 days, Current streak: ${h.currentStreak} days, Recent completions: ${h.recentCompletions}/30 days`).join('\n') || 'No habits yet'}
+YOUR APPROACH:
+- Use contractions (you're, that's, let's) - be conversational
+- Mix honest reality checks with genuine encouragement
+- Reference their actual habit data to prove your points
+- End on an empowering, actionable note
 
-Recent Pomodoros (7 days):
-${pomodoroHistory.map(p => `- ${p.habit_name || 'Custom'}: ${p.session_count} sessions, ${p.total_minutes} minutes`).join('\n') || 'None'}
+USER'S ULTIMATE GOAL:
+"${ultimateGoal}"
 
-USER REQUEST:
-Goals: ${goals}
-Time available: ${availableTime}
+TIMEFRAME:
+"${timeframe}"
 
-MIKA'S RULES:
+CURRENT HABIT DATA:
+${habitStats.map(h => `- ${h.name} (${h.category}): Target ${h.weeklyTarget}/7 days, Current streak: ${h.currentStreak} days, Completions this month: ${h.recentCompletions}/30`).join('\n') || 'No habits tracked yet'}
 
-1. CONSISTENCY IS PRIMARY SIGNAL
-   - Calculate: consistency = completed / planned
-   - Bands: EXCELLENT (≥80%), ACCEPTABLE (60-79%), RISK (40-59%), CRITICAL (<40%)
-   - Never praise outcomes if consistency is poor
+RECENT FOCUS SESSIONS (7 days):
+${pomodoroHistory.map(p => `- ${p.habit_name || 'Custom'}: ${p.session_count} sessions, ${p.total_minutes} minutes`).join('\n') || 'No Pomodoro sessions yet'}
 
-2. TONE SELECTION (DETERMINISTIC):
-   - ≥80%: STRICT_POSITIVE ("You stayed consistent. Maintain it.")
-   - 60-79%: NEUTRAL ("Progress exists. Improve consistency.")
-   - 40-59%: CORRECTIVE ("This pace will not reach your goal.")
-   - <40%: WARNING ("Consistency is critically low. Adjust.")
+YOUR TASK:
+Provide a strategic assessment in this format:
 
-3. FORBIDDEN LANGUAGE:
-   - No "You failed" / "You are lazy" / "You should feel bad"
-   - No "Amazing job" / "Don't give up" / emotional encouragement
-   - No emojis, no excitement
-   - No asking how user feels
+1. REALITY CHECK (2-3 sentences):
+   - Acknowledge their goal with respect
+   - Give honest assessment if timeline is realistic based on their current habits
+   - Point out their biggest weakness (backed by data)
 
-4. ALLOWED TRAITS:
-   - Short, direct, observational
-   - Action-oriented
-   - Truth statements, not encouragement
+2. THE GOOD NEWS (1-2 sentences):
+   - Highlight what they're already doing well (if anything)
+   - Show belief in their potential
 
-5. GOAL ADJUSTMENT:
-   - Suggest, never enforce
-   - Say: "Adjusting the plan increases success probability"
-   - Never: "You must change this"
+3. STRATEGIC MILESTONES:
+   - Break goal into 3-4 quarterly/monthly milestones
+   - Make them specific and measurable
+   
+4. BIGGEST OBSTACLE:
+   - Identify the #1 thing that will likely make them fail
+   - Be direct but constructive
 
-6. SAFETY:
-   - If goal unrealistic: intervene immediately
-   - Protect long-term sustainability over short-term success
+5. ACTION PLAN (Immediate next steps):
+   - 3 concrete actions they should start THIS WEEK
+   - Be specific and actionable
 
-TASK:
-Provide:
-1. 3 recommended habits (prioritize low-streak existing ones for consistency)
-2. Pomodoro schedule (25-min sessions) realistic for available time
-3. MIKA-style message (2 sentences max, objective, no emotion)
+6. CLOSING MOTIVATION:
+   - End with honest but empowering statement
+   - Reference their existing strengths
 
-Calculate each habit's consistency as: (recentCompletions / 30) * 100
-Use this to determine tone and content.
+TONE EXAMPLES:
+✅ "Alright, [goal] - that's ambitious, I respect it!"
+✅ "Here's the real talk: your [habit] streak is [number]. That's your red flag."
+✅ "You've got [timeframe] - that IS enough time, but only if..."
+✅ "You're crushing it with [habit]. Now channel that same energy into..."
+❌ Don't use: "You failed", "You're lazy", robotic corporate speak
 
-Respond ONLY with valid JSON:
-{
-  "recommendedHabits": [{"habit": "name", "why": "objective reason based on consistency data", "isNew": false}],
-  "pomodoroSchedule": [{"habit": "name", "sessions": 2, "estimatedMinutes": 50}],
-  "motivation": "MIKA-style objective statement (no emotion, no emojis, truth only)"
-}`;
+Write your response as flowing conversational text with proper paragraphs. Be warm, be real, be honest.`;
 
         console.log('📡 Calling Perplexity AI...');
 
@@ -203,56 +197,37 @@ Respond ONLY with valid JSON:
             },
             body: JSON.stringify({
                 model: 'sonar',
-                messages: [{ role: 'user', content: prompt }]
+                messages: [
+                    { role: 'system', content: 'You are MIKA, a brutally honest but supportive yearly goal coach.' },
+                    { role: 'user', content: prompt }
+                ],
+                temperature: 0.7
             })
         });
 
         if (!response.ok) {
             const errorText = await response.text();
-            throw new Error(`Perplexity API error: ${response.status} - ${errorText}`);
+            console.error('Perplexity API Error:', response.status, errorText);
+            throw new Error(`Perplexity API error: ${response.status}`);
         }
 
         const data = await response.json();
-        const aiText = data.choices[0].message.content;
+        const aiResponse = data.choices[0].message.content;
 
-        console.log('✓ Received AI response');
-        console.log('📝 Response preview:', aiText.substring(0, 100) + '...');
-
-        // Parse JSON
-        let aiSuggestions;
-        try {
-            const jsonMatch = aiText.match(/```json\n([\s\S]*?)\n```/) || aiText.match(/```\n([\s\S]*?)\n```/) || aiText.match(/\{[\s\S]*\}/);
-            const jsonText = jsonMatch ? (jsonMatch[1] || jsonMatch[0]) : aiText;
-            aiSuggestions = JSON.parse(jsonText);
-        } catch (parseError) {
-            console.error('Parse error, using fallback');
-            aiSuggestions = {
-                recommendedHabits: habitStats.slice(0, 3).map(h => ({
-                    habit: h.name,
-                    why: `Continue your ${h.currentStreak}-day streak`,
-                    isNew: false
-                })),
-                pomodoroSchedule: habitStats.slice(0, 2).map(h => ({
-                    habit: h.name,
-                    sessions: 2,
-                    estimatedMinutes: 50
-                })),
-                motivation: "Consistency determines outcomes. Execute the plan."
-            };
-        }
+        console.log('✅ AI response received');
 
         res.json({
-            message: 'AI coach suggestions generated',
-            suggestions: aiSuggestions,
-            context: {
-                totalHabits: habits.length,
-                activeStreaks: habitStats.filter(h => h.currentStreak > 0).length
-            }
+            suggestions: aiResponse,
+            habitData: habitStats,
+            pomodoroData: pomodoroHistory
         });
+
     } catch (error) {
-        console.error('❌ AI Coach error:', error.message);
+        console.error('Error in AI coach:', error);
+        console.error('Error message:', error.message);
+        console.error('Error stack:', error.stack);
         res.status(500).json({
-            error: 'Failed to generate AI suggestions',
+            error: 'Failed to get AI recommendations',
             details: error.message
         });
     }
